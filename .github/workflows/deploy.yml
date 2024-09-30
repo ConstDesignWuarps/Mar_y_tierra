@@ -27,10 +27,10 @@ jobs:
         version: 'latest'
         project_id: wuarpservices
 
-    # Step 4: Deploy to Compute Engine (VM in us-central1-b)
+    # Step 4: SSH into the Compute Engine VM and pull latest code
     - name: Deploy to Compute Engine
       run: |
-        gcloud compute ssh cloud-deployment-gce-java-mig-green-gf7f \  # Use the correct VM name
+        gcloud compute ssh cloud-deployment-gce-java-mig-green-gf7f \
           --project=wuarpservices \
-          --zone=us-central1-b \  # Use the correct zone for the VM
+          --zone=us-central1-b \
           --command="cd /home/ConstDesignWuarps/Mar_y_tierra && git pull && sudo systemctl restart flaskapp.service"
