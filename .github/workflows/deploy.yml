@@ -1,0 +1,31 @@
+name: Deploy to Google Cloud
+
+on:
+  push:
+    branches:
+      - main  # Deploy when code is pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the latest code from the repository
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    # Step 2: Set up Google Cloud SDK
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        version: 'latest'
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        project_id: wuarpservices  # Replace with your actual Google Cloud Project ID
+
+    # Step 3: SSH into your Google Cloud VM and pull the latest code
+    - name: Deploy to Compute Engine
+      run: |
+        gcloud compute ssh wuarps-deployment-vm \  # Replace with your actual VM instance name
+          --project=wuarpservices \
+          --zone=us-central1-a \  # Replace with the correct zone of your VM
+          --command="cd /home/ConstDesignWuarps/Mar_y_tierra && git pull && sudo systemctl restart flaskapp.service"
