@@ -12,17 +12,22 @@ jobs:
     steps:
     # Step 1: Check out the latest code from the repository
     - name: Checkout the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3  # Use the latest version
 
-    # Step 2: Set up Google Cloud SDK with the correct version
+    # Step 2: Authenticate with Google Cloud
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1  # Add authentication step
+      with:
+        credentials_json: ${{ secrets.GCLOUD_SERVICE_KEY }}
+
+    # Step 3: Set up Google Cloud SDK
     - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1  # Use v1 or v2 instead of master
+      uses: google-github-actions/setup-gcloud@v1  # Use v1 but remove deprecated inputs
       with:
         version: 'latest'
-        service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
         project_id: wuarpservices
 
-    # Step 3: Deploy to Compute Engine
+    # Step 4: Deploy to Compute Engine
     - name: Deploy to Compute Engine
       run: |
         gcloud compute ssh wuarps-deployment-vm \
