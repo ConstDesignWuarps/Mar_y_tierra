@@ -1,4 +1,4 @@
-from mar_tierra import Config, create_app
+from mar_tierra import create_app
 import os
 
 try:
@@ -6,13 +6,8 @@ try:
 except:
     ENV = 'DEV'
 
-#app, socketio = create_app()
-
-#if __name__ == '__main__':
-#    socketio.run(app, host='0.0.0.0', debug=True, port=8080) if ENV == 'PROD' else app.run(host='0.0.0.0', debug=True)
-
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=8080) if ENV == 'PROD' else app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True, port=5000) if ENV == 'PROD' else app.run(host='0.0.0.0', debug=True)
 
