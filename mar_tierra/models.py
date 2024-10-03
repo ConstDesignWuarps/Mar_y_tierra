@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Union
 from flask import current_app
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+#from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
 from mar_tierra import db, login_manager
@@ -19,7 +19,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String, default='user')
-    home_items = db.relationship('Home', backref='author', lazy=True, foreign_keys='Home.user_id')
+    home_items = db.relationship('Home', backref='author', lazy=True)
 
     def get_reset_token(self, expires_sec: int = 1800) -> str:
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -49,8 +49,14 @@ class Product(db.Model):
     price = db.Column(db.Float)
     home_item_id = db.Column(db.Integer, db.ForeignKey('home_items.id'))
 
+    # Renamed to avoid conflict
+    related_home = db.relationship('Home', lazy=True)
+
     def __repr__(self):
         return f"ProductModel(id={self.id}, name='{self.name}', price={self.price})"
+
+
+
 
 
 class Project(db.Model):
@@ -66,12 +72,13 @@ class Project(db.Model):
     actual_cost = db.Column(db.Float)
 
     home_item_id = db.Column(db.Integer, db.ForeignKey('home_items.id'))
-    home_item = db.relationship('HomeItem', backref='projects')
+    home_item = db.relationship('Home', backref='related_projects', lazy=True)  # Changed backref to 'related_projects'
 
     pictures = db.relationship('Picture', backref='project', lazy=True)
 
     def __repr__(self):
         return f"Home_Project(id={self.id}, status='{self.status}', category='{self.category}')"
+
 
 
 class Picture(db.Model):
@@ -82,7 +89,6 @@ class Picture(db.Model):
 
     def __repr__(self):
         return f"Picture(id={self.id}, image_path='{self.image_path}')"
-
 
 
 class Home(db.Model):
@@ -105,11 +111,12 @@ class Home(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id])
-    products = db.relationship('Product', backref='home_item', lazy=True)
+    products = db.relationship('Product', backref='home', lazy=True)  # No conflict here, backref is 'home'
     projects = db.relationship('Project', backref='project_item', lazy=True)
 
     def __repr__(self) -> str:
         return f"Home'{self.name}'"
+
 
 
 class Visit(db.Model):
