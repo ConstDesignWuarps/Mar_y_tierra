@@ -1,6 +1,4 @@
 import os
-from google.cloud import storage  # Import Google Cloud Storage client
-import sqlite3
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -8,10 +6,6 @@ from wuarps_designs_v1.mar_tierra import db, bcrypt
 from wuarps_designs_v1.mar_tierra.models import User, Home, Visit
 from wuarps_designs_v1.mar_tierra.views.users.forms import RegistrationForm, LoginForm
 
-# Add this line to set the environment variable for the service account key
-json_credentials_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'service-account-key.json')
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = json_credentials_path
-
 users = Blueprint('users', __name__)
 consent_yes = Blueprint('consent_yes', __name__)
 
@@ -19,16 +13,6 @@ consent_yes = Blueprint('consent_yes', __name__)
 users = Blueprint('users', __name__)
 consent_yes = Blueprint('consent_yes', __name__)
 
-
-# Function to download the SQLite .db file from Google Cloud Storage
-def download_db_from_gcs(bucket_name, source_blob_name, destination_file_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-
-    # Download the .db file from the bucket to the local file system
-    blob.download_to_filename(destination_file_name)
-    print(f"Downloaded {source_blob_name} to {destination_file_name}.")
 
 
 @users.route("/registration", methods=['GET', 'POST'])
