@@ -2,9 +2,9 @@ import os
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 
-from wuarps_designs_v1.mar_tierra import db, bcrypt
-from wuarps_designs_v1.mar_tierra.models import User, Home, Visit
-from wuarps_designs_v1.mar_tierra.views.users.forms import RegistrationForm, LoginForm
+from Mar_y_tierra.mar_tierra import db, bcrypt
+from Mar_y_tierra.mar_tierra.models import User, Home, Visit
+from Mar_y_tierra.mar_tierra.views.users.forms import RegistrationForm, LoginForm
 
 users = Blueprint('users', __name__)
 consent_yes = Blueprint('consent_yes', __name__)
