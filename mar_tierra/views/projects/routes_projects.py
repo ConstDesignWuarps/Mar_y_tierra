@@ -105,7 +105,7 @@ def new_item_to_admin_project():
 
 
 
-@products.route("/product/<int:productid>/update", methods=['GET', 'POST'])
+@projects.route("/product/<int:productid>/update", methods=['GET', 'POST'])
 @login_required
 def update_product(productid):
     product = Product.query.get_or_404(productid)

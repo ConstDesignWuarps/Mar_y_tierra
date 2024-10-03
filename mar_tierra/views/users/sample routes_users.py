@@ -3,10 +3,9 @@ from google.cloud import storage  # Import Google Cloud Storage client
 import sqlite3
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
-
-from wuarps_designs_v1.mar_tierra import db, bcrypt
-from wuarps_designs_v1.mar_tierra.models import User, Home, Visit
-from wuarps_designs_v1.mar_tierra.views.users.forms import RegistrationForm, LoginForm
+from mar_tierra import db, bcrypt
+from mar_tierra.models import User, Home, Visit
+from mar_tierra.views.users.forms import RegistrationForm, LoginForm
 
 # Add this line to set the environment variable for the service account key
 json_credentials_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'service-account-key.json')
@@ -33,23 +32,54 @@ def download_db_from_gcs(bucket_name, source_blob_name, destination_file_name):
 
 @users.route("/registration", methods=['GET', 'POST'])
 def registration():
+    # Download the database file before using it
+    bucket_name = 'wuarps_design'  # Replace with your bucket name
+    source_blob_name = 'wuarps_designs_objectStorage/mar_tierra.db'  # Replace with the .db file name in your bucket
+    destination_file_name = os.path.join(os.path.dirname(__file__), 'mar_tierra.db')
+
+    # Download the database from GCS
+    download_db_from_gcs(bucket_name, source_blob_name, destination_file_name)
+
+    # Now, connect to the downloaded SQLite database
+    conn = sqlite3.connect(destination_file_name)
+    cursor = conn.cursor()
+
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Hash the password
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(email=form.email.data,
-                    password=hashed_password)
 
-        db.session.add(user)
-        db.session.commit()
+        # Insert the new user into the database
+        cursor.execute("""
+            INSERT INTO user (email, password) VALUES (?, ?)
+        """, (form.email.data, hashed_password))
+
+        conn.commit()
+        conn.close()  # Close the SQLite connection after committing
+
         flash('Your Account was created, Congrats!!!', 'success')
         return redirect(url_for('users.login'))
+
     return render_template('users/register.html', title='Register', form=form)
+
 
 
 @users.route("/login", methods=['GET', 'POST'])
 def login():
+    # Download the database file before using it
+    bucket_name = 'wuarps_design'  # Replace with your bucket name
+    source_blob_name = 'wuarps_designs_objectStorage/mar_tierra.db'  # Replace with the .db file name in your bucket
+    destination_file_name = os.path.join(os.path.dirname(__file__), 'mar_tierra.db')
+
+    download_db_from_gcs(bucket_name, source_blob_name, destination_file_name)
+
+    # Now, connect to the downloaded SQLite database
+    conn = sqlite3.connect(destination_file_name)
+    cursor = conn.cursor()
+
     ip_address = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
     consent_given = request.form.get('consent_given')
     if consent_given is not None:
@@ -58,6 +88,7 @@ def login():
 
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -70,14 +101,15 @@ def login():
                 visit.user_id = user.id
                 visit.user_email = user.email
             else:
-                visit = Visit(ip_address=ip_address, visit_count=1, consent_given=True, user_id=user.id, user_email=user.email)
+                visit = Visit(ip_address=ip_address, visit_count=1, consent_given=True, user_id=user.id,
+                              user_email=user.email)
             db.session.add(visit)
             db.session.commit()
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
-            flash('We do not have you register please Register in order to set your home', 'danger')
-    return render_template('users/login.html', title='Login', form=form)
+            flash('We do not have you registered, please Register to set your home', 'danger')
 
+    return render_template('users/login.html', title='Login', form=form)
 
 
 @users.route("/logout")

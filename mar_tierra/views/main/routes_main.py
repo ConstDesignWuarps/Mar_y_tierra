@@ -1,5 +1,4 @@
 from flask import render_template, Blueprint, request, jsonify
-from flask_socketio import SocketIO, emit
 from mar_tierra import db
 from mar_tierra.models import Visit, Product
 
