@@ -2,6 +2,53 @@
 
 {% block additional_css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='design_generals.css') }}">
+<style>
+    .chat-container {
+        max-width: 400px;
+        margin: 20px auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        background-color: #f9f9f9;
+    }
+    .chat-box {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        background-color: white;
+    }
+    .chat-input-container {
+        display: flex;
+    }
+    .chat-input-container input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 8px;
+    }
+    .chat-input-container button {
+        padding: 8px 16px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .message {
+        margin: 5px 0;
+    }
+    .message.user {
+        text-align: right;
+    }
+    .message.bot {
+        text-align: left;
+        color: #555;
+    }
+</style>
 {% endblock %}
 
 {% block main_content %}
@@ -19,6 +66,26 @@
              </p>
           <br>
       </div>
+
+    <hr>
+
+<!-- Chat bot Here -->
+    <div class="chat-container">
+            <h3>Chat with Us</h3>
+
+            <div class="chat-input-container">
+                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        <br>
+        <br>
+
+            <div class="chat-box" id="chat-box">
+                <!-- Messages will be appended here dynamically -->
+            </div>
+        </div>
+
+    <hr>
 
 
     {% if current_user.is_authenticated %}
@@ -88,41 +155,6 @@
 
             </ul>
 
-        <hr>
-
-         <ul class="component-overview">
-             <div class="row">
-                 <small style="font-size: small"><strong>Live in luxury <br> without breaking <br>the bank: <br>rich country-style <br> living</strong></small>
-             </div>
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home_1.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
-
-                </li>
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home2.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
-
-                </li>
-
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home_3.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
-
-                </li>
-
-
-            </ul>
-
 
     {% else %}
 
@@ -160,73 +192,46 @@
                     </div>
                 </li>
 
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <a class="component-item__link" href="#">
-                           <p class="component-name"> Home Catalogs <br>
-                               <br>Browse our catalog and imagine and check what could be your new home
-                           </p>
-                        </a>
-
-                          <div class="cds--resource-card__icon--action">
-                            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-label="Open resource" width="20" height="20" viewBox="0 0 32 32" role="img">
-                                <path d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"></path>
-                                <path d="M20 2L20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    </div>
-
-                </li>
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--3x3"><div class="cds--aspect-ratio--object">
-                        <a class="component-item__link" href="#">
-                            <p class="component-name"> Reach Us<br>
-                                <br>in case you need any help reach us or contact us</p>
-                        </a>
-                    </div>
-                    </div>
-                </li>
-
     </ul>
 
-        <hr>
+        <script>
+            // Placeholder RAG API call simulation
+            async function fetchResponse(message) {
+                // Here you would make an AJAX call to your Flask route handling the RAG response
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+                return data.response;  // Adjust this to match your response structure
+            }
 
-         <ul class="component-overview">
-             <div class="row">
-                 <small style="font-size: small"><strong>Live in luxury <br> without breaking <br>the bank: <br>rich country-style <br> living</strong></small>
-             </div>
+            // Sending the message and handling responses
+            async function sendMessage() {
+                const userInput = document.getElementById('user-input');
+                const message = userInput.value.trim();
+                if (message) {
+                    appendMessage('user', message);
+                    userInput.value = '';
 
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home_1.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
+                    // Fetch response from RAG
+                    const response = await fetchResponse(message);
+                    appendMessage('bot', response);
+                }
+            }
 
-                </li>
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home2.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
-
-                </li>
-
-
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <img src="{{ url_for('static', filename='photos/home_3.png') }}" style="width: 20rem; height: 10rem;">
-                    </div>
-                    </div>
-
-                </li>
-
-
-            </ul>
-
-
+            function appendMessage(sender, message) {
+                const chatBox = document.getElementById('chat-box');
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', sender);
+                messageElement.innerHTML = `<p>${message}</p>`;
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to latest message
+            }
+        </script>
 
     {% endif %}
 

@@ -257,19 +257,60 @@
 
     {% else %}
 
-              <a href="{{ url_for('users.registration') }}">
-                   <button aria-expanded="false" class="cds--side-nav__submenu" type="button">
-                      <span class="cds--side-nav__link-text">
-                          Register</span>
-                  </button>
-              </a>
 
-              <a href="{{ url_for('users.login') }}">
-                   <button aria-expanded="false" class="cds--side-nav__submenu" type="button">
-                      <span class="cds--side-nav__link-text">
-                          Log In</span>
-                  </button>
-              </a>
+            <li class="cds--accordion__item">
+                                    <button type="button" aria-controls="accordion-item-:r7:" aria-expanded="false" class="cds--accordion__heading">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" class="cds--accordion__arrow" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z">
+                                            </path>
+                                        </svg>
+                                        <div class="cds--accordion__title" dir="ltr">
+                                            Register
+                                        </div>
+                                    </button>
+                                    <div class="cds--accordion__wrapper">
+                                        <div id="accordion-item-:r7:" class="cds--accordion__content"><br>
+                                            <p>
+
+                                                <a href="{{ url_for('users.registration') }}">
+                                                   <button aria-expanded="false" class="cds--side-nav__submenu" type="button">
+                                                      <span class="cds--side-nav__link-text">
+                                                          Register Now</span>
+                                                  </button>
+                                                </a>
+                                            </p>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </li>
+
+
+
+          <li class="cds--accordion__item">
+                                    <button type="button" aria-controls="accordion-item-:r7:" aria-expanded="false" class="cds--accordion__heading">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" class="cds--accordion__arrow" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z">
+                                            </path>
+                                        </svg>
+                                        <div class="cds--accordion__title" dir="ltr">
+                                            Log In
+                                        </div>
+                                    </button>
+                                    <div class="cds--accordion__wrapper">
+                                        <div id="accordion-item-:r7:" class="cds--accordion__content"><br>
+                                            <p>
+
+                                                <a href="{{ url_for('users.login') }}">
+                                                   <button aria-expanded="false" class="cds--side-nav__submenu" type="button">
+                                                      <span class="cds--side-nav__link-text">
+                                                          Access your Profile</span>
+                                                  </button>
+                                                </a>
+                                            </p>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </li>
 
       {% endif %}
 
