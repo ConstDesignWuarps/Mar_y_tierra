@@ -6,7 +6,30 @@
 
 {% block main_content %}
     {% if current_user.is_authenticated %}
+
+           <br>
+
+<!-- Chat bot Here -->
+    <div class="chat-container">
+            <h3>Chat with Us</h3>
+
+            <div class="chat-input-container">
+                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        <br>
+        <br>
+
+            <div class="chat-box" id="chat-box">
+                <!-- Messages will be appended here dynamically -->
+            </div>
+        </div>
+
+    <hr>
+        <br>
+
       <ul class="component-overview">
+          <br>
 
                 <li class="component-item">
                     <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
@@ -28,7 +51,7 @@
                 <li class="component-item">
                     <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
                         <a class="component-item__link" href="#">
-                           <p class="component-name"> Home Catalogs <br>
+                           <p class="component-name"> Create Estimates <br>
                                <br>Browse our catalog and imagine and check what could be your new home
                            </p>
                         </a>
@@ -44,15 +67,7 @@
 
                 </li>
 
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--3x3"><div class="cds--aspect-ratio--object">
-                        <a class="component-item__link" href="#">
-                            <p class="component-name"> Reach Us<br>
-                                <br>in case you need any help reach us or contact us</p>
-                        </a>
-                    </div>
-                    </div>
-                </li>
+               
 
             </ul>
 
