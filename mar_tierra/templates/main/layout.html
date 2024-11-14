@@ -9,7 +9,7 @@
 
     <style>
     .chat-container {
-        max-width: 575px;
+        max-width: 550px;
         margin: 20px auto;
         border: 1px solid #ddd;
         border-radius: 8px;
@@ -48,12 +48,14 @@
     }
     .message.user {
         text-align: right;
+        color: blue;
     }
     .message.bot {
         text-align: left;
-        color: #555;
+        color: gray;
     }
 </style>
+
 </head>
 
 
@@ -482,6 +484,53 @@ document.addEventListener('click', function(event) {
   }
 });
 </script>
+
+    <!-- Chat bot Here -->
+   <script>
+    // Function to call the Flask /chat route
+    async function fetchResponse(message) {
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+            return data.response;  // Adjust this to match your response structure
+        } catch (error) {
+            console.error("Error fetching response:", error);
+            return "Sorry, there was an error processing your request.";
+        }
+    }
+
+    // Sending the message and handling responses
+    async function sendMessage() {
+        const userInput = document.getElementById('user-input');
+        const message = userInput.value.trim();
+        if (message) {
+            appendMessage('user', message);
+            userInput.value = '';
+
+            // Fetch response from RAG
+            const response = await fetchResponse(message);
+            appendMessage('bot', response);
+        }
+    }
+
+    // Append messages to the chat box
+    function appendMessage(sender, message) {
+        const chatBox = document.getElementById('chat-box');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        messageElement.innerHTML = `<p>${message}</p>`;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to latest message
+    }
+</script>
+
+
 
            <!-- CONTENT -->
 

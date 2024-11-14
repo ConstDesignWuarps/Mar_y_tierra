@@ -25,19 +25,17 @@
 
 <!-- Chat bot Here -->
     <div class="chat-container">
-            <h3>Chat with Us</h3>
+    <h3>Chat with Us</h3>
 
-            <div class="chat-input-container">
-                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        <br>
-        <br>
-
-            <div class="chat-box" id="chat-box">
-                <!-- Messages will be appended here dynamically -->
-            </div>
-        </div>
+    <div class="chat-input-container">
+        <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <br>
+    <div class="chat-box" id="chat-box">
+        <!-- Messages will be appended here dynamically -->
+    </div>
+</div>
 
     <hr>
 
@@ -62,47 +60,37 @@
                     </div>
                 </li>
 
-                <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
-                        <a class="component-item__link" href="#">
-                            <p class="component-name">Account<br>
-                                <br>Review your current projects or design, add edit or just check with us the next steps</p>
-                        </a>
-                         <div class="cds--resource-card__icon--action">
-                            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-label="Open resource" width="20" height="20" viewBox="0 0 32 32" role="img">
-                                <path d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"></path>
-                                <path d="M20 2L20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    </div>
-                </li>
+
 
                 <li class="component-item">
                     <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--1x1"><div class="cds--aspect-ratio--object">
                         <a class="component-item__link" href="#">
-                           <p class="component-name"> Home Catalogs <br>
-                               <br>Browse our catalog and imagine and check what could be your new home
+                           <p class="component-name"> Estimates <br>
+                               <br>Create your detail estimate, export and share.
                            </p>
                         </a>
-
-                          <div class="cds--resource-card__icon--action">
+                        <div class="cds--resource-card__icon--action">
                             <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-label="Open resource" width="20" height="20" viewBox="0 0 32 32" role="img">
                                 <path d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"></path>
                                 <path d="M20 2L20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2z"></path>
                             </svg>
                         </div>
+
+
                     </div>
                     </div>
 
                 </li>
 
                 <li class="component-item">
-                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--3x3"><div class="cds--aspect-ratio--object">
-                        <a class="component-item__link" href="#">
-                            <p class="component-name"> Reach Us<br>
-                                <br>in case you need any help reach us or contact us</p>
-                        </a>
+                    <div class="cds--aspect-ratio cds--aspect-ratio--align cds--aspect-ratio--4x4"><div class="cds--aspect-ratio--object">
+
+                            <p class="component-name"> Reach us @ <br>
+                                wuarpsdesigns@gmail.com<br>
+                                <br>in case you need any <br>
+                                help reach us or contact <br>
+                                us</p>
+
                     </div>
                     </div>
                 </li>
@@ -148,44 +136,6 @@
 
     </ul>
 
-        <script>
-            // Placeholder RAG API call simulation
-            async function fetchResponse(message) {
-                // Here you would make an AJAX call to your Flask route handling the RAG response
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-                const data = await response.json();
-                return data.response;  // Adjust this to match your response structure
-            }
-
-            // Sending the message and handling responses
-            async function sendMessage() {
-                const userInput = document.getElementById('user-input');
-                const message = userInput.value.trim();
-                if (message) {
-                    appendMessage('user', message);
-                    userInput.value = '';
-
-                    // Fetch response from RAG
-                    const response = await fetchResponse(message);
-                    appendMessage('bot', response);
-                }
-            }
-
-            function appendMessage(sender, message) {
-                const chatBox = document.getElementById('chat-box');
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', sender);
-                messageElement.innerHTML = `<p>${message}</p>`;
-                chatBox.appendChild(messageElement);
-                chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to latest message
-            }
-        </script>
 
     {% endif %}
 
