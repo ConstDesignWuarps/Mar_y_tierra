@@ -1,135 +1,83 @@
-from flask import (render_template, url_for, flash,
-                   redirect, request, Blueprint)
-from flask_login import current_user, login_required
+from flask import render_template, Blueprint, request, jsonify
 from mar_tierra import db
-from mar_tierra.models import Home, Product
-from mar_tierra.views.homes.forms import NewHomeFom
-from datetime import datetime
+from mar_tierra.models import Visit
+import openai
+import os
+from dotenv import load_dotenv
 
-homes = Blueprint('homes', __name__)
+# Load environment variables from .env file
+load_dotenv()
 
+# Initialize OpenAI and GROQ API keys
+openai.api_key = os.getenv("OPENAI_API_KEY")
+groq_api_key = os.getenv("GROQ_API_KEY")
 
-@homes.route("/home/new", methods=['GET', 'POST'])
-@login_required
-def new_home():
-    form = NewHomeFom(request.form)
-    type_holder = None
-    if form.desired_budget.data and form.desired_budget.data.isnumeric():
-        type_holder = int(form.desired_budget.data)
-    if form.validate_on_submit():
-        type = "Petite Design" if type_holder < 200000 else "Fair Design" if 200000 <= type_holder < 300000 else "Luxury Design"
-        home = Home(name=form.name.data,
-                    target_date=form.target_date.data,
-                    desired_budget=form.desired_budget.data,
-                    author=current_user,
-                    creator_email=current_user.email,
-                    type=type)
-        db.session.add(home)
-        db.session.commit()
+# Initialize the ChatGroq LLM
+from langchain_groq import ChatGroq
 
-        flash('Your are one step closer to your new Home, thanks for taking the first step', 'success')
-        if int(form.desired_budget.data) < 200000:
-            return redirect(url_for('homes.home_design_petite'))
-        elif 200000 <= int(form.desired_budget.data) < 300000:
-            return redirect(url_for('homes.home_design_fair'))
-        else:
-            return redirect(url_for('homes.home_design_luxury'))
-    return render_template('home/new_home.html', title='New home', form=form)
+llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
+
+# Flask Blueprint
+main = Blueprint("main", __name__)
 
 
-@homes.route("/home/new/petite_design", methods=['GET', 'POST'])
-@login_required
-def home_design_petite():
-    homes_items = Home.query.filter(Home.author == current_user, Home.type == 'Petite Design').all()
-    return render_template('home/new_home_petite_design.html', homes_items=homes_items)
+# Home Route
+@main.route("/")
+@main.route("/home")
+def home():
+    ip_address = request.remote_addr
+    visit = Visit.query.filter_by(ip_address=ip_address).first()
 
-
-@homes.route("/home/new/fair_design", methods=['GET', 'POST'])
-@login_required
-def home_design_fair():
-    homes_items = Home.query.filter(Home.author == current_user, Home.type == 'Fair Design').all()
-    return render_template('home/new_home_fair_design.html', homes_items=homes_items)
-
-
-@homes.route("/home/new/luxury_design", methods=['GET', 'POST'])
-@login_required
-def home_design_luxury():
-    homes_items = Home.query.filter(Home.author == current_user, Home.type == 'Luxury Design').all()
-    return render_template('home/new_home_luxury_design.html', homes_items=homes_items)
-
-
-####################### Home Actions #################################
-
-@homes.route("/detail_home_project/<int:id>")
-@login_required
-def home_detail(id):
-        home = Home.query.get_or_404(id)
-        home_item = Home.query.filter_by(id=id).first()
-        products = Product.query.filter_by(home_item_id=id).all()
-        return render_template('home/home_detail.html', home=home, home_item=home_item,
-                               products=products)
-
-
-@homes.route("/update_home/update/<int:id>", methods=['GET', 'POST'])
-@login_required
-def update_home(id):
-    home = Home.query.get_or_404(id)
-    form = NewHomeFom(request.form)
-    type_holder = None
-    if form.desired_budget.data and form.desired_budget.data.isnumeric():
-        type_holder = int(form.desired_budget.data)
-    if form.validate_on_submit():
-        home.name = form.name.data
-        home.desired_budget = form.desired_budget.data
-        home.target_date = form.target_date.data
-        db.session.commit()
-
-        flash('Your home project has been update Congrats', 'success')
-        if int(form.desired_budget.data) < 200000:
-            return redirect(url_for('homes.home_design_petite'))
-        elif 200000 <= int(form.desired_budget.data) < 300000:
-            return redirect(url_for('homes.home_design_fair'))
-        else:
-            return redirect(url_for('homes.home_design_luxury'))
-
-    elif request.method == 'GET':
-        form.name.data = home.name
-        form.desired_budget.data = home.desired_budget
-        form.target_date.data = home.target_date
-
-    return render_template('home/new_home.html', title='New home', form=form)
-
-
-@homes.route("/cancel_homeProject/<int:id>", methods=['GET', 'POST'])
-@login_required
-def cancel_home_project(id):
-    home_item = Home.query.filter_by(id=id).first()
-    if home_item:
-        home_item.status = 'Cancel'
-        home_item.date_closed = datetime.utcnow()
-        db.session.commit()
-        print(request.method)
-        flash('Your Home Request has been Cancel, '
-              'please let us know if you wish to contact to '
-              'follow up with any requirement or regard', 'danger')
+    if visit:
+        visit.visit_count += 1
     else:
-        flash('No home item found with the provided ID or it is not in Phase One status', 'warning')
-    return redirect(url_for('users.account'))
+        visit = Visit(ip_address=ip_address, visit_count=1, consent_given=False)
+        db.session.add(visit)
+
+    db.session.commit()  # Save visit updates
+    return render_template("main/home.html", ip_address=ip_address, consent_given=visit.consent_given)
 
 
-@homes.route("/complete_home_request_from_User/<int:id>", methods=['GET', 'POST'])
-@login_required
-def complete_home_request(id):
-    home_item = Home.query.filter_by(author=current_user, id=id).first()
-    if home_item:
-        home_item.status = 'Working on Quote'
-        home_item.date_closed = datetime.utcnow()
-        db.session.commit()
-        flash('Your Home Request has been captured. Congrats, an agent will be working to contact you and present our quotation', 'success')
-    else:
-        flash('No home item found with the provided ID or it is not in Phase One status', 'warning')
-    return redirect(url_for('users.account'))
+# Chat Route
+@main.route("/chat", methods=["POST"])
+def chat():
+    """Chat endpoint with simplified logic."""
+    data = request.get_json()
+    user_message = data.get("message", "").strip()
 
+    if not user_message:
+        return jsonify({"response": "Please provide a message."}), 400
 
+    try:
+        # Handle greetings
+        greeting_keywords = ["hi", "hello", "hey", "greetings"]
+        if any(keyword in user_message.lower() for keyword in greeting_keywords):
+            return jsonify({
+                               "response": "Hey there! I can help with construction estimates, contacts, or general inquiries. What do you need assistance with?"})
 
+        # Handle specific tasks
+        if "estimate" in user_message.lower():
+            return jsonify({
+                               "response": "I can help you with construction cost estimates. Please refer to https://wuarpsconstructiondesign.com/home#?"})
+        if "contact" in user_message.lower():
+            return jsonify({
+                               "response": "For further assistance, you can reach out to our construction specialists at wuarpsdesigns@gmail.com."})
 
+        # General questions forwarded to LLM
+        llm_input = [{"role": "user", "content": user_message}]
+        print("LLM Input:", llm_input)  # Debugging log
+
+        # Query the LLM
+        response = llm.generate(llm_input)
+        print("LLM Response:", response)  # Debugging log
+
+        # Parse the LLM response
+        bot_reply = response.generations[0].text.strip()
+        return jsonify({"response": bot_reply})
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({
+            "response": "Sorry, an error occurred while processing your request.",
+            "error": str(e)
+        }), 500
