@@ -12,21 +12,15 @@
 
 <!-- Chat bot Here -->
     <div class="chat-container">
-            <h3>Chat with Us</h3>
-
-            <div class="chat-input-container">
-                <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        <br>
-        <br>
-
-            <div class="chat-box" id="chat-box">
-                <!-- Messages will be appended here dynamically -->
-            </div>
+        <h3>Chat with Us</h3>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+            <button onclick="sendMessage()">Send</button>
         </div>
-
-    <hr>
+        <div id="chat-box">
+            <!-- Messages dynamically appended here -->
+        </div>
+    </div>
         <br>
 
       <ul class="component-overview">
